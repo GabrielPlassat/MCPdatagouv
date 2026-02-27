@@ -15,13 +15,7 @@ Le MCP permet à Claude de **rechercher des jeux de données**, **lire leurs mé
 
 ### 1. Forker ce repo sur GitHub
 
-### 2. Ajouter votre clé API Anthropic dans les secrets Streamlit
-
-Dans l'interface Streamlit Cloud > Settings > Secrets :
-
-```toml
-ANTHROPIC_API_KEY = "sk-ant-..."
-```
+### 2. Ajouter votre clé API 
 
 ### 3. Déployer l'app
 
