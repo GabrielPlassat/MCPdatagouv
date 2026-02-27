@@ -148,7 +148,7 @@ def run_query(question: str) -> str:
     declarations = get_tool_declarations()
 
     model = genai.GenerativeModel(
-        model_name="gemini-2.0-flash",
+        model_name="gemini-2.5-flash-preview-05-20",
         tools=[genai.protos.Tool(function_declarations=declarations)],
         system_instruction=(
             "Tu es un assistant expert en données publiques françaises. "
