@@ -128,9 +128,15 @@ def get_tool_declarations():
     client = get_mcp_client()
     tools = client.list_tools()
     declarations = []
+    def clean_schema(s):
+        if isinstance(s, dict):
+            return {k: clean_schema(v) for k, v in s.items() if k not in ("title", "$schema")}
+        if isinstance(s, list):
+            return [clean_schema(i) for i in s]
+        return s
+
     for t in tools:
-        schema = dict(t.get("inputSchema", {}))
-        schema.pop("$schema", None)
+        schema = clean_schema(t.get("inputSchema", {}))
         declarations.append(
             genai.protos.FunctionDeclaration(
                 name=t["name"],
