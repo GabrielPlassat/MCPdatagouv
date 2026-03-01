@@ -122,67 +122,29 @@ class MCPClient:
 def get_mcp_client():
     return MCPClient(MCP_URL)
 
-
 def get_tool_declarations():
-    return [
-        genai.protos.FunctionDeclaration(
-            name="search_datasets",
-            description="Recherche des jeux de données sur data.gouv.fr par mots-clés.",
-            parameters={
-                "type": "object",
-                "properties": {
-                    "query": {"type": "string", "description": "Mots-clés de recherche"},
-                    "page_size": {"type": "integer", "description": "Nombre de résultats (max 20)"},
-                },
-                "required": ["query"],
-            },
-        ),
-        genai.protos.FunctionDeclaration(
-            name="get_dataset_info",
-            description="Informations détaillées sur un dataset à partir de son ID.",
-            parameters={
-                "type": "object",
-                "properties": {
-                    "dataset_id": {"type": "string", "description": "ID du dataset"},
-                },
-                "required": ["dataset_id"],
-            },
-        ),
-        genai.protos.FunctionDeclaration(
-            name="list_dataset_resources",
-            description="Liste les fichiers disponibles dans un dataset.",
-            parameters={
-                "type": "object",
-                "properties": {
-                    "dataset_id": {"type": "string", "description": "ID du dataset"},
-                },
-                "required": ["dataset_id"],
-            },
-        ),
-        genai.protos.FunctionDeclaration(
-            name="query_resource_data",
-            description="Récupère les données tabulaires d'une ressource CSV/XLS.",
-            parameters={
-                "type": "object",
-                "properties": {
-                    "resource_id": {"type": "string", "description": "ID de la ressource"},
-                    "page": {"type": "integer", "description": "Numéro de page"},
-                },
-                "required": ["resource_id"],
-            },
-        ),
-    ]
+    # Le SDK génère le schéma automatiquement depuis les signatures Python
+    def search_datasets(query: str, page_size: int = 10) -> str:
+        """Recherche des jeux de données sur data.gouv.fr par mots-clés."""
+        pass
+    def get_dataset_info(dataset_id: str) -> str:
+        """Informations détaillées sur un dataset à partir de son ID."""
+        pass
+    def list_dataset_resources(dataset_id: str) -> str:
+        """Liste les fichiers disponibles dans un dataset."""
+        pass
+    def query_resource_data(resource_id: str, page: int = 1) -> str:
+        """Récupère les données tabulaires d'une ressource CSV/XLS."""
+        pass
+    return [search_datasets, get_dataset_info, list_dataset_resources, query_resource_data]
 
-
-# ─── Boucle agentique Gemini ─────────────────────────────────────────────────
 
 def run_query(question: str) -> str:
     client = get_mcp_client()
-    declarations = get_tool_declarations()
 
     model = genai.GenerativeModel(
         model_name="gemini-2.5-flash",
-        tools=[genai.protos.Tool(function_declarations=declarations)],
+        tools=get_tool_declarations(),
         system_instruction=(
             "Tu es un assistant expert en données publiques françaises. "
             "Utilise les outils MCP disponibles pour rechercher et analyser "
@@ -232,6 +194,7 @@ def run_query(question: str) -> str:
         return response.text
     except Exception:
         return "Désolé, je n'ai pas pu obtenir de réponse."
+
 
 
 # ─── Interface ────────────────────────────────────────────────────────────────
