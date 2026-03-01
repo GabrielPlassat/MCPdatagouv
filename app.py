@@ -123,28 +123,55 @@ def get_mcp_client():
     return MCPClient(MCP_URL)
 
 
-@st.cache_data(ttl=3600)
 def get_tool_declarations():
-    client = get_mcp_client()
-    tools = client.list_tools()
-    declarations = []
-    def clean_schema(s):
-        if isinstance(s, dict):
-            return {k: clean_schema(v) for k, v in s.items() if k not in ("title", "$schema")}
-        if isinstance(s, list):
-            return [clean_schema(i) for i in s]
-        return s
-
-    for t in tools:
-        schema = clean_schema(t.get("inputSchema", {}))
-        declarations.append(
-            genai.protos.FunctionDeclaration(
-                name=t["name"],
-                description=t.get("description", ""),
-                parameters=schema,
-            )
-        )
-    return declarations
+    return [
+        genai.protos.FunctionDeclaration(
+            name="search_datasets",
+            description="Recherche des jeux de données sur data.gouv.fr par mots-clés.",
+            parameters={
+                "type": "object",
+                "properties": {
+                    "query": {"type": "string", "description": "Mots-clés de recherche"},
+                    "page_size": {"type": "integer", "description": "Nombre de résultats (max 20)"},
+                },
+                "required": ["query"],
+            },
+        ),
+        genai.protos.FunctionDeclaration(
+            name="get_dataset_info",
+            description="Informations détaillées sur un dataset à partir de son ID.",
+            parameters={
+                "type": "object",
+                "properties": {
+                    "dataset_id": {"type": "string", "description": "ID du dataset"},
+                },
+                "required": ["dataset_id"],
+            },
+        ),
+        genai.protos.FunctionDeclaration(
+            name="list_dataset_resources",
+            description="Liste les fichiers disponibles dans un dataset.",
+            parameters={
+                "type": "object",
+                "properties": {
+                    "dataset_id": {"type": "string", "description": "ID du dataset"},
+                },
+                "required": ["dataset_id"],
+            },
+        ),
+        genai.protos.FunctionDeclaration(
+            name="query_resource_data",
+            description="Récupère les données tabulaires d'une ressource CSV/XLS.",
+            parameters={
+                "type": "object",
+                "properties": {
+                    "resource_id": {"type": "string", "description": "ID de la ressource"},
+                    "page": {"type": "integer", "description": "Numéro de page"},
+                },
+                "required": ["resource_id"],
+            },
+        ),
+    ]
 
 
 # ─── Boucle agentique Gemini ─────────────────────────────────────────────────
